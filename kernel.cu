@@ -1,4 +1,9 @@
 #include "utils.cu"
+#include "vecadd.cu"
+#include "swiGLU.cu"
+#include "softmax.cu"
+#include "transpose.cu"
+#include "linear_attention.cu"
 
 int main(int argc, char**argv) {
 	// result should be almost propotional to datasize/bandwidth
