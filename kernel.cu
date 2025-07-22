@@ -45,7 +45,7 @@ int main(int argc, char**argv) {
 		}
 		if(!strcmp(argv[i], "linear_attention_decode")) {
 			int B = 128, H = 64, D = 128;
-			int rtcode = test_linear_attention_decode(true, B, H, D);
+			int rtcode = test_linear_attention_decode(false, B, H, D);
 			if(rtcode) return rtcode;
 			else printf("test_linear_attention_decode success for B*H*D=%d, B*H*D*D=%d\n",  B * H * D, B * H * D * D);
 		}

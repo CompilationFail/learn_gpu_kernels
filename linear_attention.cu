@@ -59,6 +59,9 @@ int test_linear_attention_decode(bool verify, int B, int H, int D) {
 	assert(D % 128 == 0);
 	for(int cas = 0; cas < cases; ++cas) {
 		{
+			// allow on test, comparing to torch code
+			// auto new_kv_cache = Tensor<T>(B * H * D * D);
+			// auto output = Tensor<T>(B * H * D);
 			dim3 blocks(B, H);
 			linear_attention_update <<<blocks, THREADS>>> 
 				(kv_cache.d(), q.d(), k.d(), v.d(), slope.d(), new_kv_cache.d(), output.d(), B, H, D);
