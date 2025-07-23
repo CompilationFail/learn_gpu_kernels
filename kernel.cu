@@ -8,7 +8,7 @@
 int main(int argc, char**argv) {
 	// result should be almost propotional to datasize/bandwidth
 	if(argc < 2) {
-		puts("usage kernel_name");
+		puts("usage: ./kernel [kernel_name]s");
 		return 0;
 	}
 	for(int i = 1; i < argc; ++i) {
@@ -45,7 +45,7 @@ int main(int argc, char**argv) {
 		}
 		if(!strcmp(argv[i], "linear_attention_decode")) {
 			int B = 128, H = 64, D = 128;
-			int rtcode = test_linear_attention_decode(false, B, H, D);
+			int rtcode = test_linear_attention_decode(true, B, H, D);
 			if(rtcode) return rtcode;
 			else printf("test_linear_attention_decode success for B*H*D=%d, B*H*D*D=%d\n",  B * H * D, B * H * D * D);
 		}

@@ -3,31 +3,42 @@
 constexpr int THREADS = 128;
 __global__ void linear_attention_update(const T *kv_cache, const Thalf *q, const Thalf *k, const Thalf *v,
 	const Thalf *slope_rate, T *new_kv_cache, T *output, int B, int H, int D) {
-	int b = blockIdx.x; // batch index
-	int h = blockIdx.y; // head index
-	T slope = exp((T)-slope_rate[h]);
-	int i0 = threadIdx.x;
-	const T *kv = &kv_cache[b * H * D * D + h * D * D];
-	T *new_kv = &new_kv_cache[b * H * D * D + h * D * D];
-	__shared__ T vv[1024], nv[1024];
+	const int b = blockIdx.x; // batch index
+	const int h = blockIdx.y; // head index
+	const int i0 = threadIdx.x;
+	const T slope = exp((T)-slope_rate[h]);
+	const int base1 = b * H * D * D + h * D * D;
+	const int base2 = b * H * D + h * D;
+	const T *kv = kv_cache + base1;
+	T *new_kv = new_kv_cache + base1;
+	const Thalf *vbase = v + base2;
+	const Thalf *kbase = k + base2;
+	const Thalf *qbase = q + base2;
+	T *output_base = output + base2;
+	__shared__ T vv[1024], nv[1024], kk[1024], qq[1024];
 	for(int j = i0; j < D; j += THREADS) {
-		vv[j] = v[b * H * D + h * D + j]; // v[b][h][j]
+		vv[j] = vbase[j]; // v[b][h][j]
+		kk[j] = kbase[j]; 
+		// 先 load 到 shared memory 会比下面 ki = kbase[i] 的时候 load 快很多
+		// 解析：
+		//  从 VRAM load 到 l1 的 时间一样
+		//  如果下面一个个 load，有 D 次 l1 load 时间，所以会略慢
+		//  但这里 l1 load 上来的时间会并行掉 (D/THREADS 次)，最后走 sharedmem 就是一个 clocktick 的时间 (读同一个位置不会 bank conflict)
+		qq[j] = qbase[j];
 		// qq[j] = q[b * H * D + h * D + j]; // q[b][h][j]
 		nv[j] = 0;
     }
 	__syncthreads();
-	for(int i = 0; i < D; ++i) {
-		T ki = k[b * H * D + h * D + i]; // q[b][h][i]
-		T qi = q[b * H * D + h * D + i]; // q[b][h][i]
-		int base = i * D;
+	for(int i = 0; i < D; ++i, new_kv += D, kv += D) {
+		T ki = kk[i]; // q[b][h][i]
+		T qi = qq[i]; // q[b][h][i]
 		for(int j = i0; j < D; j += THREADS) {
-			T value = kv[base + j] * slope + ki * vv[j];
-			new_kv[base + j] = value;
+			T value = kv[j] * slope + ki * vv[j];
+			new_kv[j] = value;
 			nv[j] += qi * value;
 		}
 	}
 	__syncthreads();
-	T *output_base = &output[b * H * D + h * D];
 	for(int j = i0; j < D; j += THREADS) 
 		output_base[j] = nv[j];
 }	

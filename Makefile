@@ -8,8 +8,16 @@ nvcc_cmd := nvcc -std=c++17\
 	-Xcompiler=-O3\
 	-gencode arch=compute_${compute_arch},code=sm_${compute_arch}
 
+nsight_cmd :=nsys profile\
+	--trace cuda,cudahw,osrt,nvtx,cublas\
+	--cuda-memory-usage true\
+	--force-overwrite true
+
 kernel: kernel.cu softmax.cu utils.cu transpose.cu swiGLU.cu vecadd.cu linear_attention.cu
 	${nvcc_cmd} -o $@ $@.cu
+
+profile: kernel
+	${nsight_cmd} ./kernel ${testname} && nsys analyze report1.nsys-rep 
 
 clean:
 	rm kernel
