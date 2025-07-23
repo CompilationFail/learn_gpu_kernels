@@ -15,7 +15,7 @@ def linear_attentention_decode(
 	new_kv_cache = kv_cache.mul_(ratio.view(1,-1,1,1)).add(cur_kv)
 	output = torch.einsum("... s e, ... e d -> ... s d", q[:,:,0:1,:], new_kv_cache)
 	# output = torch.rearrange(output, "b h s d -> s b (h d)")
-	return output.reshape(1, B, H * D), new_kv_cache
+	return output.view(1, B, H * D), new_kv_cache
 
 
 B = 128

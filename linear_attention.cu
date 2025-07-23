@@ -45,15 +45,27 @@ __global__ void linear_attention_update(const T *kv_cache, const Thalf *q, const
 
 int test_linear_attention_decode(bool verify, int B, int H, int D) {
 	auto last = std::chrono::high_resolution_clock::now();
-	auto q = (Tensor<Thalf>(B * H * D).rd01().todevice()); 
+	/*auto q = (Tensor<Thalf>(B * H * D).rd01().todevice()); 
 	auto k = Tensor<Thalf>(B * H * D).rd01().todevice(); 
 	auto v = Tensor<Thalf>(B * H * D).rd01().todevice(); 
 	auto slope = Tensor<Thalf>(H).rd01().todevice(); 
 	auto kv_cache = Tensor<T>(B * H * D * D).rd01().todevice(); 
 	auto new_kv_cache = Tensor<T>(B * H * D * D);
+	auto output = Tensor<T>(B * H * D);*/
+	auto q = Tensor<Thalf>(B * H * D).rd01();
+	auto k = Tensor<Thalf>(B * H * D).rd01();
+	auto v = Tensor<Thalf>(B * H * D).rd01();
+	auto slope = Tensor<Thalf>(H).rd01();
+	auto kv_cache = Tensor<T>(B * H * D * D).rd01();
+	auto new_kv_cache = Tensor<T>(B * H * D * D);
 	auto output = Tensor<T>(B * H * D);
-	measurel("malloc & cudaMemcpy")
-
+	measurel("malloc & randn")
+	q.todevice();
+	k.todevice();
+	v.todevice();
+	slope.todevice();
+	kv_cache.todevice();
+	measurel("copy to gpu");
 	float c = 0;
 	int cases = 500;
 	assert(D % 128 == 0);
