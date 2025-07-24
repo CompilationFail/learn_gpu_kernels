@@ -64,6 +64,14 @@ __global__ void transpose(const T *x, T *y, int N, int M) {
 	}
 }
 
+template <class T> void transpose_wrapper(Tensor <T> &x, Tensor <T>&y, int n, int m) {
+	static constexpr int D = TransposeD;
+	dim3 threads_per_block(transpose_thread_dim_x, transpose_thread_dim_y);
+	dim3 blocks(n / D, m / D);
+	transpose<<<blocks, threads_per_block>>>(x.d(), y.d(), n, m);
+	cudaDeviceSynchronize();
+}
+
 int test_transpose(bool verify, int n, int m) {
 	auto last = std::chrono::high_resolution_clock::now();
 	int N = n * m;
@@ -76,13 +84,7 @@ int test_transpose(bool verify, int n, int m) {
 	assert(n % 128 == 0);
 	assert(m % 128 == 0);
 	for(int cas = 0; cas < cases; ++cas) {
-		{
-			static constexpr int D = TransposeD;
-			dim3 threads_per_block(transpose_thread_dim_x, transpose_thread_dim_y);
-			dim3 blocks(n / D, m / D);
-			transpose<<<blocks, threads_per_block>>>(x.d(), y.d(), n, m);
-			cudaDeviceSynchronize();
-		}
+		transpose_wrapper(x, y, n, m);
 	}
 	measurec("transpose: kernel", c);
 	printf("transpose kernel average: %.3lfms\n", c / cases);

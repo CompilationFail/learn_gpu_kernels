@@ -1,9 +1,4 @@
-#include "utils.cu"
-#include "vecadd.cu"
-#include "swiGLU.cu"
-#include "softmax.cu"
-#include "transpose.cu"
-#include "linear_attention.cu"
+#include "kernels.h"
 
 int main(int argc, char**argv) {
 	// result should be almost propotional to datasize/bandwidth
@@ -48,6 +43,13 @@ int main(int argc, char**argv) {
 			int rtcode = test_linear_attention_decode(true, B, H, D);
 			if(rtcode) return rtcode;
 			else printf("test_linear_attention_decode success for B*H*D=%d, B*H*D*D=%d\n",  B * H * D, B * H * D * D);
+		}
+		if(!strcmp(argv[i], "matmul")) {
+			int N = 512, M = 512, K = 64;
+			// int N = 2048, M = 512, K = 128;
+			int rtcode = test_matmul(true, N, M, K);
+			if(rtcode) return rtcode;
+			else printf("test_matmul success for N=%d,M=%d,K=%d,N*M*K=%d\n",  N, M, K, N * M * K);
 		}
 	}
 }

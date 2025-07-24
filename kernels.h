@@ -1,0 +1,7 @@
+#include "utils.cu"
+#include "vecadd.cu"
+#include "swiGLU.cu"
+#include "softmax.cu"
+#include "transpose.cu"
+#include "linear_attention.cu"
+#include "matmul.cu"

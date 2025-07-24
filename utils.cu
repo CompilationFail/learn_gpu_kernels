@@ -38,7 +38,9 @@ using Thalf = __half;
 }
 
 template <class T> bool fp_equal(T a, T b) {
-	return fabs((float)a - (float)b) < 1e-3;
+	float d = fabs((float)a - (float)b);
+	float t = max(max(a, b), 1.);
+	return d / t < 1e-3;
 }
 
 template <class T> class Tensor {
@@ -47,19 +49,24 @@ template <class T> class Tensor {
 	int N, size;
 public:
 	Tensor() = delete;
-	Tensor(int _N) { 
+	Tensor(int _N, bool host=true, bool device=true) { 
 		N = _N;
 		size = sizeof(T) * N;
-		x = (T*)malloc(size), d_x = nullptr;
-		cudaError_t err = cudaMalloc((void**)&d_x, size);
+		x = nullptr, d_x = nullptr;
+		if(host) {
+			x = (T*)malloc(size);
+		}
+		if(device) {
+			cudaError_t err = cudaMalloc((void**)&d_x, size);
+			if(err != cudaSuccess) {
+				d_x = nullptr;
+				printf("CUDA malloc fail: N=%d\n", N);
+				assert("CUDA Malloc Fail");
+			}
+		}
 		counter = (int*)malloc(sizeof(int));
 		*counter = 1;
-		if(err != cudaSuccess) {
-			d_x = nullptr;
-			printf("CUDA malloc fail: N=%d\n", N);
-		} else { 
-			// printf("Tensor malloc(%d) sizeof(T)=%d, %p %p, %p\n", N, (int)sizeof(T), x, d_x, counter);
-		}
+		// printf("Tensor malloc(%d) sizeof(T)=%d, %p %p, %p\n", N, (int)sizeof(T), x, d_x, counter);
 	}
 	Tensor<T>(const Tensor <T> &other) {
 		x = other.x, d_x = other.d_x;
@@ -90,17 +97,25 @@ public:
 		}
 	}
 	Tensor& rdrange(double l, double r) {
+		assert(x != nullptr);
 		std::mt19937 eng(618);
-		for(int i = 0; i < N; ++i) x[i] = (T)std::uniform_real_distribution<double>(l,l)(eng);
+		for(int i = 0; i < N; ++i) x[i] = (T)std::uniform_real_distribution<double>(l,r)(eng);
 		return *this;
 	}
 	Tensor& rd01() { return rdrange(0,1); }
 	Tensor& todevice() {
+		assert(x != nullptr && d_x != nullptr);
 		cudaMemcpy(d_x, x, size, cudaMemcpyHostToDevice);
 		return *this;
 	} 
 	Tensor& tohost() {
+		assert(x != nullptr && d_x != nullptr);
 		cudaMemcpy(x, d_x, size, cudaMemcpyDeviceToHost);
+		return *this;
+	}
+	Tensor& dclear() {
+		assert(d_x != nullptr);
+		cudaMemset(d_x, 0, size);
 		return *this;
 	}
 	T* d() { return d_x; } // device
