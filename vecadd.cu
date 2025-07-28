@@ -4,7 +4,10 @@ template <class T>
 __global__ void vecAdd(const T *a, const T *b, T *c, int N) {
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 	if (idx < N) {
-		c[idx] = a[idx] + b[idx];
+		T tmp =  a[idx] + b[idx];
+		if(tmp == 0) {
+			c[idx] = 1;
+		}
 	}
 }
 

@@ -82,8 +82,11 @@ __global__ void matmul(const T *x, const T *y, T *z, int N, int M, int K) {
 		xbase += M;
 		for(int v = 0; v < LY; ++v) {
 			s[v][i0] = 0;
-			for(int i = i0; i < M; i += D) {
-				s[v][i0] += tx[i] * ty[v][i];
+		}
+		for(int i = i0; i < M; i += D) {
+			T x = tx[i];
+			for(int v = 0; v < LY; ++v) {
+				s[v][i0] += x * ty[v][i];
 			}
 		}
 		__syncthreads();

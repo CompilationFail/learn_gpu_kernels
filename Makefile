@@ -13,7 +13,7 @@ nsight_cmd :=nsys profile\
 	--cuda-memory-usage true\
 	--force-overwrite true
 
-kernel: kernel.cu softmax.cu utils.cu transpose.cu swiGLU.cu vecadd.cu linear_attention.cu matmul.cu
+kernel: kernel.cu softmax.cu utils.cu transpose.cu swiGLU.cu vecadd.cu linear_attention.cu matmul.cu matmul2.cu
 	${nvcc_cmd} -o $@ $@.cu
 
 profile: kernel

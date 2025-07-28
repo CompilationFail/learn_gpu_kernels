@@ -4,4 +4,5 @@
 #include "softmax.cu"
 #include "transpose.cu"
 #include "linear_attention.cu"
-#include "matmul.cu"
+// #include "matmul.cu"
+#include "matmul2.cu"

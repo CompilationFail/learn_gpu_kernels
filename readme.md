@@ -94,5 +94,17 @@ linear_attention_decode kernel average: 1.817ms
 linear_attention_decode kernel average: 1.877ms
 linear_attention_decode kernel average: 1.828ms
 linear_attention_decode kernel average: 1.832ms
-```
 
+test_matmul success for N=512,M=512,K=64,N*M*K=16777216
+test_matmul: malloc & cudaMemcpy: 159.044ms
+matmul kernel average: 0.053ms
+matmul kernel average: 0.047ms
+matmul kernel average: 0.047ms
+matmul kernel average: 0.048ms
+matmul kernel average: 0.049ms
+matmul kernel average: 0.052ms
+matmul kernel average: 0.039ms
+matmul kernel average: 0.043ms
+matmul kernel average: 0.044ms
+matmul kernel average: 0.044ms
+```
