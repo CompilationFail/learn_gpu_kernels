@@ -107,4 +107,18 @@ matmul kernel average: 0.039ms
 matmul kernel average: 0.043ms
 matmul kernel average: 0.044ms
 matmul kernel average: 0.044ms
+
+test_matmul success for N=512,M=512,K=64,N*M*K=16777216
+test_matmul: malloc & cudaMemcpy: 144.832ms
+test_matmul: check: 6.713ms
+matmul kernel average: 0.030ms
+matmul kernel average: 0.040ms
+matmul kernel average: 0.034ms
+matmul kernel average: 0.040ms
+matmul kernel average: 0.053ms
+matmul kernel average: 0.034ms
+matmul kernel average: 0.030ms
+matmul kernel average: 0.044ms
+matmul kernel average: 0.045ms
+matmul kernel average: 0.038ms
 ```

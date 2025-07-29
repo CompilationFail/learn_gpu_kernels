@@ -123,3 +123,19 @@ public:
 	// T& operator [] (int i) { return x[i]; }
 };
 
+
+__device__ void copy4(const float *src, float *dst) {
+	*reinterpret_cast<float4*> (dst) = *reinterpret_cast<const float4*> (src);
+}
+template <const int stride> __device__ void copy4_stride_src(const float *src, float *dst) {
+	const float4 tmp{src[0], src[stride],src[stride*2],src[stride*3]};
+	*reinterpret_cast<float4*> (dst) = tmp;
+}
+
+template <const int stride> __device__ void copy4_stride_dst(const float *src, float *dst) {
+	const float4 tmp = *reinterpret_cast<const float4*> (src);
+	dst[0] = tmp.x;
+	dst[stride*1] = tmp.y;
+	dst[stride*2] = tmp.z;
+	dst[stride*3] = tmp.w;
+}
