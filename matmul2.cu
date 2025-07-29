@@ -31,7 +31,7 @@ __global__ void matmul(const T *a, const T *b, T *C, int N, int M, int K) {
 			A[i][iy] = a[(i + n) * K + k + iy];*/
 		int ix = i0 / (LK / 4), iy = i0 % (LK / 4);
 		for(int i = ix; i < LN; i += D / (LK / 4)) 
-			copy4_stride_dst<LN+1>(&a[(i + n) * K + k + iy * 4], &A[iy * 4][i]);
+			copy4_stride_dst<LN>(&a[(i + n) * K + k + iy * 4], &A[iy * 4][i]);
 		/*ix = i0 / LM, iy = i0 % LM;
 		for(int i = ix; i < LK; i += D / LM) 
 			B[iy][i] = b[(k + i) * M + (iy + m)];*/
